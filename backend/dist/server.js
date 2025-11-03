@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import { connectDB } from "./config/db.js";
+import cookieParser from "cookie-parser";
 //routes imports
 import blogRoutes from "./routes/blog.routes.js";
 import historyRoutes from "./routes/history.routes.js";
@@ -12,6 +13,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(cors());
+app.use(cookieParser());
 app.use(express.json());
 // Connect to MongoDB
 connectDB();

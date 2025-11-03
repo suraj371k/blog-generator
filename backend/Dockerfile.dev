@@ -1,0 +1,17 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm install
+
+# Install ts-node-dev for live reload
+RUN npm install -g ts-node-dev
+
+# Copy everything else
+COPY . .
+
+EXPOSE 5000
+
+CMD ["npm", "run", "dev"]

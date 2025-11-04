@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from "mongoose";
 
 // TypeScript Interface
 export interface IBlog extends Document {
@@ -6,22 +6,16 @@ export interface IBlog extends Document {
   title: string;
   content: string;
   topic: string;
-  tone: 'professional' | 'casual' | 'technical' | 'creative';
+  tone: "professional" | "casual" | "technical" | "creative";
   wordCount: number;
   readingTime: number;
   metaDescription?: string;
   tags: string[];
   seoScore?: number;
-  status: 'draft' | 'published';
   exportFormats: {
     markdown?: string;
     html?: string;
     pdfUrl?: string;
-  };
-  generationParams: {
-    model: string;
-    temperature: number;
-    maxTokens: number;
   };
   createdAt: Date;
   updatedAt: Date;
@@ -32,28 +26,28 @@ const blogSchema = new Schema<IBlog>(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
-      required: [true, 'User ID is required'],
+      ref: "User",
+      required: [true, "User ID is required"],
       index: true,
     },
     title: {
       type: String,
-      required: [true, 'Title is required'],
+      required: [true, "Title is required"],
       trim: true,
-      maxlength: [200, 'Title cannot exceed 200 characters'],
+      maxlength: [200, "Title cannot exceed 200 characters"],
     },
     content: {
       type: String,
-      required: [true, 'Content is required'],
+      required: [true, "Content is required"],
     },
     topic: {
       type: String,
-      required: [true, 'Topic is required'],
+      required: [true, "Topic is required"],
       trim: true,
     },
     tone: {
       type: String,
-      enum: ['professional', 'casual', 'technical', 'creative'],
+      enum: ["professional", "casual", "technical", "creative"],
       required: true,
     },
     wordCount: {
@@ -68,7 +62,7 @@ const blogSchema = new Schema<IBlog>(
     },
     metaDescription: {
       type: String,
-      maxlength: [160, 'Meta description cannot exceed 160 characters'],
+      maxlength: [160, "Meta description cannot exceed 160 characters"],
     },
     tags: {
       type: [String],
@@ -77,7 +71,7 @@ const blogSchema = new Schema<IBlog>(
         validator: function (tags: string[]) {
           return tags.length <= 10;
         },
-        message: 'Cannot have more than 10 tags',
+        message: "Cannot have more than 10 tags",
       },
     },
     seoScore: {
@@ -85,41 +79,10 @@ const blogSchema = new Schema<IBlog>(
       min: 0,
       max: 100,
     },
-    status: {
-      type: String,
-      enum: ['draft', 'published'],
-      default: 'draft',
-    },
     exportFormats: {
-      markdown: {
-        type: String,
-      },
-      html: {
-        type: String,
-      },
-      pdfUrl: {
-        type: String,
-      },
-    },
-    generationParams: {
-      model: {
-        type: String,
-        required: true,
-        default: 'gpt-4',
-      },
-      temperature: {
-        type: Number,
-        required: true,
-        min: 0,
-        max: 2,
-        default: 0.7,
-      },
-      maxTokens: {
-        type: Number,
-        required: true,
-        min: 100,
-        default: 2000,
-      },
+      markdown: { type: String },
+      html: { type: String },
+      pdfUrl: { type: String },
     },
   },
   {
@@ -129,18 +92,16 @@ const blogSchema = new Schema<IBlog>(
 
 // Indexes
 blogSchema.index({ userId: 1, createdAt: -1 });
-blogSchema.index({ status: 1 });
 blogSchema.index({ tags: 1 });
 blogSchema.index({ topic: 1 });
 
-// Virtual for calculating reading time from word count
-blogSchema.pre('save', function (next) {
+// Virtual for calculating reading time
+blogSchema.pre("save", function (next) {
   if (this.wordCount) {
-    this.readingTime = Math.ceil(this.wordCount / 200); // Average reading speed: 200 words/min
+    this.readingTime = Math.ceil(this.wordCount / 200); // Average reading speed
   }
   next();
 });
 
-const Blog = mongoose.model<IBlog>('Blog', blogSchema);
-
+const Blog = mongoose.model<IBlog>("Blog", blogSchema);
 export default Blog;

@@ -6,7 +6,6 @@ export const blogSchema = z.object({
     .string()
     .min(1, "Title is required")
     .max(200, "Title cannot exceed 200 characters"),
-  content: z.string().min(1, "Content is required"),
   topic: z.string().min(1, "Topic is required"),
   tone: z.enum(["professional", "casual", "technical", "creative"]),
   wordCount: z.number().min(0).optional(),

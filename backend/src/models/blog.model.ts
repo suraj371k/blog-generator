@@ -4,7 +4,6 @@ import mongoose, { Document, Schema } from "mongoose";
 export interface IBlog extends Document {
   userId: mongoose.Types.ObjectId;
   title: string;
-  content: string;
   topic: string;
   tone: "professional" | "casual" | "technical" | "creative";
   wordCount: number;
@@ -35,10 +34,6 @@ const blogSchema = new Schema<IBlog>(
       required: [true, "Title is required"],
       trim: true,
       maxlength: [200, "Title cannot exceed 200 characters"],
-    },
-    content: {
-      type: String,
-      required: [true, "Content is required"],
     },
     topic: {
       type: String,

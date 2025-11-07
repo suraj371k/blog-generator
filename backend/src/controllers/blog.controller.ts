@@ -23,7 +23,7 @@ export const generateBlog = async (req: Request, res: Response) => {
       .omit({ userId: true })
       .parseAsync(req.body);
 
-    const { title, content, topic, tone, tags, metaDescription } = parsedData;
+    const { title, topic, tone, tags, metaDescription } = parsedData;
 
     //  Step 3: Initialize Gemini model
     const model = new ChatGoogleGenerativeAI({
@@ -40,7 +40,6 @@ export const generateBlog = async (req: Request, res: Response) => {
       Title: {title}
       Topic: {topic}
       Tone: {tone}
-      Main idea: {content}
 
       Requirements:
       - Maintain a {tone} writing style.
@@ -62,7 +61,7 @@ export const generateBlog = async (req: Request, res: Response) => {
       title,
       topic,
       tone,
-      content,
+      content: undefined
     });
 
     // Step 5: Generate blog using Gemini
@@ -163,7 +162,6 @@ export const getBlogs = async (req: Request, res: Response) => {
       seoScore: blog.seoScore,
       createdAt: blog.createdAt,
       updatedAt: blog.updatedAt,
-      content: blog.content,
       markdown: blog.exportFormats?.markdown || "",
       html: blog.exportFormats?.html || "",
       pdfUrl: blog.exportFormats?.pdfUrl || "",
@@ -230,7 +228,6 @@ export const updateBlogs = async (req: Request, res: Response) => {
     if (tone) blog.tone = tone;
     if (tags) blog.tags = tags;
     if (metaDescription) blog.metaDescription = metaDescription;
-    if (content) blog.content = content;
 
     if (content) {
       blog.wordCount = content.split(/\s+/).length;

@@ -61,7 +61,7 @@ export const generateBlog = async (req: Request, res: Response) => {
       title,
       topic,
       tone,
-      content: undefined
+      content: undefined,
     });
 
     // Step 5: Generate blog using Gemini
@@ -222,7 +222,7 @@ export const updateBlogs = async (req: Request, res: Response) => {
 
     const { title, topic, tone, tags, metaDescription, content } = req.body;
 
-    //apply update only if provided
+    // Apply update only if provided
     if (title) blog.title = title;
     if (topic) blog.topic = topic;
     if (tone) blog.tone = tone;
@@ -230,8 +230,15 @@ export const updateBlogs = async (req: Request, res: Response) => {
     if (metaDescription) blog.metaDescription = metaDescription;
 
     if (content) {
+      // Use bracket notation to avoid TypeScript errors
+      (blog as any).content = content;
       blog.wordCount = content.split(/\s+/).length;
-      blog.readingTime = Math.ceil(blog.wordCount / 200); // 200 words/minute
+      blog.readingTime = Math.ceil(blog.wordCount / 200);
+      
+      // Also update exportFormats.markdown if you use it
+      if (blog.exportFormats) {
+        (blog.exportFormats as any).markdown = content;
+      }
     }
 
     await blog.save();

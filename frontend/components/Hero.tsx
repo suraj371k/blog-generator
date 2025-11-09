@@ -3,6 +3,7 @@
 import React from "react";
 import { Button } from "./ui/button";
 import { ArrowUpWideNarrow, Donut, Sparkle, Speaker } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const Hero = () => {
   const features = [
@@ -25,6 +26,8 @@ const Hero = () => {
       icon: <Speaker />,
     },
   ];
+
+  const router = useRouter();
   return (
     <section className="flex flex-col">
       {/* header */}
@@ -48,12 +51,18 @@ const Hero = () => {
 
           {/* Buttons */}
           <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6 mt-4">
-            <Button className="w-full sm:w-56 h-12 text-lg font-semibold text-white bg-linear-to-r from-blue-700 to-purple-700 shadow-md hover:shadow-lg hover:scale-[1.02] transition-all">
+            <Button
+              onClick={() => router.push("/generate-blog")}
+              className="w-full cursor-pointer sm:w-56 h-12 text-lg font-semibold text-white bg-linear-to-r from-blue-700 to-purple-700 shadow-md hover:shadow-lg hover:scale-[1.02] transition-all"
+            >
               Generate Blog
             </Button>
 
-            <div className="p-[2px] bg-linear-to-r from-blue-700 to-purple-700 rounded-lg w-full sm:w-56">
-              <Button className="w-full h-12 text-lg font-semibold bg-white text-purple-700 rounded-lg hover:bg-transparent hover:text-purple-800 transition-all">
+            <div className="p-0.5 bg-linear-to-r from-blue-700 to-purple-700 rounded-lg w-full sm:w-56">
+              <Button
+                onClick={() => router.push("/generate-blog")}
+                className="w-full h-12 text-lg font-semibold bg-white text-purple-700 rounded-lg hover:bg-transparent hover:text-purple-800 transition-all"
+              >
                 Try Demo
               </Button>
             </div>
@@ -99,7 +108,10 @@ const Hero = () => {
           Start creating compelling blog posts with the power of AI today. No
           credit card required
         </p>
-        <Button className="bg-linear-to-r w-56 h-12 text-lg from-blue-700 to-purple-700">
+        <Button
+          onClick={() => router.push("/generate-blog")}
+          className="bg-linear-to-r cursor-pointer w-56 h-12 text-lg from-blue-700 to-purple-700"
+        >
           Generate Blog
         </Button>
       </div>

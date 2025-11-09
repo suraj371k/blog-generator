@@ -1,33 +1,30 @@
 "use client";
 
-import { useUserStore } from "@/store/userStore";
-import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useUserStore } from "@/store/userStore";
 
-interface ProtectedRouteProps {
+export default function ProtectedRoute({
+  children,
+}: {
   children: React.ReactNode;
-}
-
-const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { user, loading, profile } = useUserStore();
+}) {
   const router = useRouter();
+  const { user, loading } = useUserStore();
 
   useEffect(() => {
-    const checkUser = async () => {
-      if (!user) {
-        await profile();
-      }
-    };
-    checkUser();
-  }, [user, profile]);
+    if (!loading && !user) {
+      router.push("/login");
+    }
+  }, [user, loading, router]);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) {
+    return <p>Loading...</p>;
+  }
 
   if (!user) {
-    router.push("/login"); // redirect to login
     return null;
   }
-  return <>{children}</>; // render protected content
-};
 
-export default ProtectedRoute;
+  return <>{children}</>;
+}

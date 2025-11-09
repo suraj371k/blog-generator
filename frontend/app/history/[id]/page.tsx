@@ -11,6 +11,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { Textarea } from "@/components/ui/textarea";
 import toast from "react-hot-toast";
+import ProtectedRoute from "@/components/Protected";
 
 const BlogDetails = () => {
   const { id } = useParams();
@@ -104,7 +105,11 @@ const BlogDetails = () => {
                 className="h-6 px-2 text-xs hover:bg-gray-100"
                 onClick={() => copyCode(code, index)}
               >
-                {copiedBlocks.has(index) ? "✓ Copied!" : <Copy className="w-3 h-3 mr-1" />}
+                {copiedBlocks.has(index) ? (
+                  "✓ Copied!"
+                ) : (
+                  <Copy className="w-3 h-3 mr-1" />
+                )}
               </Button>
             </div>
             <SyntaxHighlighter
@@ -133,16 +138,22 @@ const BlogDetails = () => {
     },
     pre: ({ children }: any) => <>{children}</>,
     h1: ({ children }: any) => (
-      <h1 className="text-3xl font-bold mt-8 mb-4 text-foreground">{children}</h1>
+      <h1 className="text-3xl font-bold mt-8 mb-4 text-foreground">
+        {children}
+      </h1>
     ),
     h2: ({ children }: any) => (
-      <h2 className="text-2xl font-semibold mt-6 mb-3 text-foreground">{children}</h2>
+      <h2 className="text-2xl font-semibold mt-6 mb-3 text-foreground">
+        {children}
+      </h2>
     ),
     p: ({ children }: any) => (
       <p className="mb-4 leading-7 text-foreground">{children}</p>
     ),
     ul: ({ children }: any) => (
-      <ul className="mb-4 ml-6 list-disc space-y-2 text-foreground">{children}</ul>
+      <ul className="mb-4 ml-6 list-disc space-y-2 text-foreground">
+        {children}
+      </ul>
     ),
     blockquote: ({ children }: any) => (
       <blockquote className="border-l-4 border-primary pl-4 py-2 my-4 italic bg-muted/30 text-foreground">
@@ -156,60 +167,72 @@ const BlogDetails = () => {
   if (!blog) return <p className="text-center">No blog found.</p>;
 
   return (
-    <div className="container mx-auto py-10 space-y-8">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-2xl font-bold">{blog.title}</CardTitle>
-          <div className="flex gap-2">
-            {!isEditing ? (
-              <>
-                <Button variant="outline" size="icon" onClick={() => setIsEditing(true)}>
-                  <Edit className="w-4 h-4" />
-                </Button>
-                <Button variant="outline" size="icon" onClick={handleCopy}>
-                  <Copy className="w-4 h-4" />
-                </Button>
-                <Button variant="outline" size="icon" onClick={handleDownload}>
-                  <Download className="w-4 h-4" />
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button onClick={handleSave}>Save</Button>
-                <Button variant="outline" onClick={() => setIsEditing(false)}>
-                  Cancel
-                </Button>
-              </>
-            )}
-          </div>
-        </CardHeader>
-
-        <CardContent className="prose prose-lg dark:prose-invert max-w-none">
-          <p className="text-muted-foreground mb-6">{blog.topic}</p>
-
-          {isEditing ? (
-            <Textarea
-              value={editedContent}
-              onChange={(e) => setEditedContent(e.target.value)}
-              className="min-h-[400px] font-mono text-sm"
-            />
-          ) : (
-            <ReactMarkdown components={components}>
-              {blogContent || "No content available"}
-            </ReactMarkdown>
-          )}
-
-          {blog.metaDescription && (
-            <div className="pt-4 border-t mt-6">
-              <p className="text-sm font-medium mb-1 text-foreground">Meta Description:</p>
-              <p className="text-sm text-muted-foreground italic">
-                {blog.metaDescription}
-              </p>
+    <ProtectedRoute>
+      <div className="container mx-auto py-10 space-y-8">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-2xl font-bold">{blog.title}</CardTitle>
+            <div className="flex gap-2">
+              {!isEditing ? (
+                <>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setIsEditing(true)}
+                  >
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                  <Button variant="outline" size="icon" onClick={handleCopy}>
+                    <Copy className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={handleDownload}
+                  >
+                    <Download className="w-4 h-4" />
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button onClick={handleSave}>Save</Button>
+                  <Button variant="outline" onClick={() => setIsEditing(false)}>
+                    Cancel
+                  </Button>
+                </>
+              )}
             </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+          </CardHeader>
+
+          <CardContent className="prose prose-lg dark:prose-invert max-w-none">
+            <p className="text-muted-foreground mb-6">{blog.topic}</p>
+
+            {isEditing ? (
+              <Textarea
+                value={editedContent}
+                onChange={(e) => setEditedContent(e.target.value)}
+                className="min-h-[400px] font-mono text-sm"
+              />
+            ) : (
+              <ReactMarkdown components={components}>
+                {blogContent || "No content available"}
+              </ReactMarkdown>
+            )}
+
+            {blog.metaDescription && (
+              <div className="pt-4 border-t mt-6">
+                <p className="text-sm font-medium mb-1 text-foreground">
+                  Meta Description:
+                </p>
+                <p className="text-sm text-muted-foreground italic">
+                  {blog.metaDescription}
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </ProtectedRoute>
   );
 };
 

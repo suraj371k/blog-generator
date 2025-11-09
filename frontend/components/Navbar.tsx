@@ -21,7 +21,7 @@ const Navbar = () => {
   const { user, loading, logout } = useUserStore();
   const router = useRouter();
 
-  if(loading) <p>Loading...</p>
+  if (loading) <p>Loading...</p>;
 
   return (
     <>

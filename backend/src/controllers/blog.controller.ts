@@ -151,6 +151,12 @@ export const getBlogs = async (req: Request, res: Response) => {
 
     let count = rawBlogs.length;
 
+    // total word count (sum of all blog.wordCount)
+    const totalWords = rawBlogs.reduce((sum, blog) => {
+      const words = blog.wordCount || 0; 
+      return sum + words;
+    }, 0);
+
     const blogs = rawBlogs.map((blog) => ({
       id: blog._id,
       title: blog.title,
@@ -170,6 +176,7 @@ export const getBlogs = async (req: Request, res: Response) => {
     return res.status(200).json({
       success: true,
       message: "blogs fetched successfully",
+      totalWords,
       count,
       blogs,
     });
@@ -285,42 +292,40 @@ export const getBlogById = async (req: Request, res: Response) => {
 
 export const searchBlog = async (req: Request, res: Response) => {
   try {
-    const { q: searchQuery, field = 'title' } = req.query;
+    const { q: searchQuery, field = "title" } = req.query;
 
-    if (!searchQuery || typeof searchQuery !== 'string') {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Search query is required" 
+    if (!searchQuery || typeof searchQuery !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Search query is required",
       });
     }
 
     // Option 1: Search across multiple fields
     const blogs = await Blog.find({
       $or: [
-        { title: { $regex: searchQuery, $options: 'i' } },
-        { content: { $regex: searchQuery, $options: 'i' } },
-        { topic: { $regex: searchQuery, $options: 'i' } }
-      ]
+        { title: { $regex: searchQuery, $options: "i" } },
+        { content: { $regex: searchQuery, $options: "i" } },
+        { topic: { $regex: searchQuery, $options: "i" } },
+      ],
     });
-
 
     if (blogs.length === 0) {
-      return res.status(404).json({ 
-        success: false, 
-        message: "No blogs found matching your search" 
+      return res.status(404).json({
+        success: false,
+        message: "No blogs found matching your search",
       });
     }
-    return res.status(200).json({ 
-      success: true, 
+    return res.status(200).json({
+      success: true,
       count: blogs.length,
-      blogs 
+      blogs,
     });
-
   } catch (error) {
     console.log("Error in search blog controller", error);
-    return res.status(500).json({ 
-      success: false, 
-      message: "Internal server error" 
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
     });
   }
 };

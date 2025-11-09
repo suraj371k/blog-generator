@@ -22,6 +22,7 @@ import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { useEffect, useState } from "react";
+import ProtectedRoute from "@/components/Protected";
 
 const GenerateBlog = () => {
   const {
@@ -218,185 +219,199 @@ const GenerateBlog = () => {
   };
 
   return (
-    <div className="container mx-auto py-8 space-y-8">
-      {/* Header */}
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold">Create Blog Post</h1>
-        <p className="text-muted-foreground">
-          Generate AI-powered blog content
-        </p>
-      </div>
+    <ProtectedRoute>
+      <div className="container mx-auto py-8 space-y-8">
+        {/* Header */}
+        <div className="text-center space-y-2">
+          <h1 className="text-3xl font-bold">Create Blog Post</h1>
+          <p className="text-muted-foreground">
+            Generate AI-powered blog content
+          </p>
+        </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        {/* Form Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Blog Details</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div className="space-y-2">
-                <Label>Title</Label>
-                <Input {...register("title")} placeholder="Enter blog title" />
-                {errors.title && (
-                  <p className="text-sm text-red-500">{errors.title.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label>Topic</Label>
-                <Textarea
-                  {...register("topic")}
-                  placeholder="Describe the blog topic..."
-                  className="min-h-[100px]"
-                />
-                {errors.topic && (
-                  <p className="text-sm text-red-500">{errors.topic.message}</p>
-                )}
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* Form Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Blog Details</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Tone</Label>
-                  <Select
-                    onValueChange={(
-                      value:
-                        | "professional"
-                        | "casual"
-                        | "technical"
-                        | "creative"
-                    ) => setValue("tone", value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select tone" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="professional">Professional</SelectItem>
-                      <SelectItem value="casual">Casual</SelectItem>
-                      <SelectItem value="technical">Technical</SelectItem>
-                      <SelectItem value="creative">Creative</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.tone && (
+                  <Label>Title</Label>
+                  <Input
+                    {...register("title")}
+                    placeholder="Enter blog title"
+                  />
+                  {errors.title && (
                     <p className="text-sm text-red-500">
-                      {errors.tone.message}
+                      {errors.title.message}
                     </p>
                   )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Tags</Label>
-                  <Input {...register("tags")} placeholder="tech, ai, web" />
-                  {errors.tags && (
+                  <Label>Topic</Label>
+                  <Textarea
+                    {...register("topic")}
+                    placeholder="Describe the blog topic..."
+                    className="min-h-[100px]"
+                  />
+                  {errors.topic && (
                     <p className="text-sm text-red-500">
-                      {errors.tags.message}
+                      {errors.topic.message}
                     </p>
                   )}
                 </div>
-              </div>
 
-              <div className="space-y-2">
-                <Label>Meta Description</Label>
-                <Input
-                  {...register("metaDescription")}
-                  placeholder="SEO description..."
-                />
-                {errors.metaDescription && (
-                  <p className="text-sm text-red-500">
-                    {errors.metaDescription.message}
-                  </p>
-                )}
-              </div>
-
-              <Button type="submit" disabled={loading} className="w-full">
-                <Sparkle className="w-4 h-4 mr-2" />
-                {loading ? "Generating..." : "Generate Blog"}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-
-        {/* Preview Section */}
-        <Card className="flex flex-col">
-          <CardHeader className="flex flex-row items-center justify-between pb-3">
-            <CardTitle>Generated Content</CardTitle>
-            {blog && (
-              <div className="flex gap-2">
-                {!isEditing ? (
-                  <>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => {
-                        setIsEditing(true);
-                        setEditedContent(blogContent || "");
-                      }}
-                      title="Edit Content"
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Tone</Label>
+                    <Select
+                      onValueChange={(
+                        value:
+                          | "professional"
+                          | "casual"
+                          | "technical"
+                          | "creative"
+                      ) => setValue("tone", value)}
                     >
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                    <Button variant="outline" size="icon" onClick={handleCopy}>
-                      <Copy className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={handleDownload}
-                    >
-                      <Download className="w-4 h-4" />
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <Button variant="default" size="sm" onClick={handleSave}>
-                      Save
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setIsEditing(false);
-                        setEditedContent(blogContent || "");
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                  </>
-                )}
-              </div>
-            )}
-          </CardHeader>
-
-          <CardContent className="flex-1 overflow-auto max-h-[80vh]">
-            {blog ? (
-              <div className="space-y-6">
-                {/* Blog Metadata */}
-                <div className="flex flex-wrap gap-4 text-sm text-muted-foreground p-4 bg-muted/20 rounded-lg">
-                  {blog.wordCount && <span>📝 {blog.wordCount} words</span>}
-                  {blog.readingTime && (
-                    <span>⏱️ {blog.readingTime} min read</span>
-                  )}
-                  {blog.tone && <span>🎭 {blog.tone}</span>}
-                  {blog.seoScore && <span>🚀 SEO: {blog.seoScore}/100</span>}
-                </div>
-
-                {/* Tags */}
-                {blog.tags && blog.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {blog.tags.map((tag, index) => (
-                      <span
-                        key={index}
-                        className="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium"
-                      >
-                        #{tag}
-                      </span>
-                    ))}
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select tone" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="professional">
+                          Professional
+                        </SelectItem>
+                        <SelectItem value="casual">Casual</SelectItem>
+                        <SelectItem value="technical">Technical</SelectItem>
+                        <SelectItem value="creative">Creative</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {errors.tone && (
+                      <p className="text-sm text-red-500">
+                        {errors.tone.message}
+                      </p>
+                    )}
                   </div>
-                )}
 
-                {/* Content */}
-                <div
-                  className="prose prose-lg max-w-none dark:prose-invert 
+                  <div className="space-y-2">
+                    <Label>Tags</Label>
+                    <Input {...register("tags")} placeholder="tech, ai, web" />
+                    {errors.tags && (
+                      <p className="text-sm text-red-500">
+                        {errors.tags.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Meta Description</Label>
+                  <Input
+                    {...register("metaDescription")}
+                    placeholder="SEO description..."
+                  />
+                  {errors.metaDescription && (
+                    <p className="text-sm text-red-500">
+                      {errors.metaDescription.message}
+                    </p>
+                  )}
+                </div>
+
+                <Button type="submit" disabled={loading} className="w-full">
+                  <Sparkle className="w-4 h-4 mr-2" />
+                  {loading ? "Generating..." : "Generate Blog"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+
+          {/* Preview Section */}
+          <Card className="flex flex-col">
+            <CardHeader className="flex flex-row items-center justify-between pb-3">
+              <CardTitle>Generated Content</CardTitle>
+              {blog && (
+                <div className="flex gap-2">
+                  {!isEditing ? (
+                    <>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => {
+                          setIsEditing(true);
+                          setEditedContent(blogContent || "");
+                        }}
+                        title="Edit Content"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handleCopy}
+                      >
+                        <Copy className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handleDownload}
+                      >
+                        <Download className="w-4 h-4" />
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button variant="default" size="sm" onClick={handleSave}>
+                        Save
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setIsEditing(false);
+                          setEditedContent(blogContent || "");
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </>
+                  )}
+                </div>
+              )}
+            </CardHeader>
+
+            <CardContent className="flex-1 overflow-auto max-h-[80vh]">
+              {blog ? (
+                <div className="space-y-6">
+                  {/* Blog Metadata */}
+                  <div className="flex flex-wrap gap-4 text-sm text-muted-foreground p-4 bg-muted/20 rounded-lg">
+                    {blog.wordCount && <span>📝 {blog.wordCount} words</span>}
+                    {blog.readingTime && (
+                      <span>⏱️ {blog.readingTime} min read</span>
+                    )}
+                    {blog.tone && <span>🎭 {blog.tone}</span>}
+                    {blog.seoScore && <span>🚀 SEO: {blog.seoScore}/100</span>}
+                  </div>
+
+                  {/* Tags */}
+                  {blog.tags && blog.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {blog.tags.map((tag, index) => (
+                        <span
+                          key={index}
+                          className="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium"
+                        >
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Content */}
+                  <div
+                    className="prose prose-lg max-w-none dark:prose-invert 
                   prose-headings:text-foreground 
                   prose-p:text-foreground 
                   prose-strong:text-foreground 
@@ -406,42 +421,43 @@ const GenerateBlog = () => {
                   prose-li:text-foreground
                   prose-blockquote:text-foreground
                   prose-code:text-foreground"
-                >
-                  {isEditing ? (
-                    <Textarea
-                      value={editedContent}
-                      onChange={(e) => setEditedContent(e.target.value)}
-                      className="min-h-[400px] font-mono text-sm"
-                      placeholder="Edit your blog content here..."
-                    />
-                  ) : (
-                    <ReactMarkdown components={components}>
-                      {blogContent || "No content available"}
-                    </ReactMarkdown>
+                  >
+                    {isEditing ? (
+                      <Textarea
+                        value={editedContent}
+                        onChange={(e) => setEditedContent(e.target.value)}
+                        className="min-h-[400px] font-mono text-sm"
+                        placeholder="Edit your blog content here..."
+                      />
+                    ) : (
+                      <ReactMarkdown components={components}>
+                        {blogContent || "No content available"}
+                      </ReactMarkdown>
+                    )}
+                  </div>
+
+                  {/* Meta Description */}
+                  {blog.metaDescription && (
+                    <div className="pt-4 border-t">
+                      <p className="text-sm font-medium mb-1 text-foreground">
+                        Meta Description:
+                      </p>
+                      <p className="text-sm text-muted-foreground italic">
+                        {blog.metaDescription}
+                      </p>
+                    </div>
                   )}
                 </div>
-
-                {/* Meta Description */}
-                {blog.metaDescription && (
-                  <div className="pt-4 border-t">
-                    <p className="text-sm font-medium mb-1 text-foreground">
-                      Meta Description:
-                    </p>
-                    <p className="text-sm text-muted-foreground italic">
-                      {blog.metaDescription}
-                    </p>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="flex items-center justify-center h-32 text-muted-foreground">
-                Generated blog will appear here
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              ) : (
+                <div className="flex items-center justify-center h-32 text-muted-foreground">
+                  Generated blog will appear here
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 };
 

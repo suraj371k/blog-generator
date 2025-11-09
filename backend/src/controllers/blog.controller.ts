@@ -234,7 +234,7 @@ export const updateBlogs = async (req: Request, res: Response) => {
       (blog as any).content = content;
       blog.wordCount = content.split(/\s+/).length;
       blog.readingTime = Math.ceil(blog.wordCount / 200);
-      
+
       // Also update exportFormats.markdown if you use it
       if (blog.exportFormats) {
         (blog.exportFormats as any).markdown = content;
@@ -253,5 +253,74 @@ export const updateBlogs = async (req: Request, res: Response) => {
     return res
       .status(500)
       .json({ success: false, message: "Internal server error" });
+  }
+};
+
+export const getBlogById = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user.id;
+
+    if (!userId) {
+      return res
+        .status(401)
+        .json({ success: false, message: "you are not authorize" });
+    }
+
+    const { id } = req.params;
+
+    const blog = await Blog.findById(id);
+
+    return res.status(200).json({
+      success: true,
+      message: "blog by id fetched successfully",
+      blog,
+    });
+  } catch (error) {
+    console.log("Error in get blog by id controller", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
+
+export const searchBlog = async (req: Request, res: Response) => {
+  try {
+    const { q: searchQuery, field = 'title' } = req.query;
+
+    if (!searchQuery || typeof searchQuery !== 'string') {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Search query is required" 
+      });
+    }
+
+    // Option 1: Search across multiple fields
+    const blogs = await Blog.find({
+      $or: [
+        { title: { $regex: searchQuery, $options: 'i' } },
+        { content: { $regex: searchQuery, $options: 'i' } },
+        { topic: { $regex: searchQuery, $options: 'i' } }
+      ]
+    });
+
+
+    if (blogs.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "No blogs found matching your search" 
+      });
+    }
+    return res.status(200).json({ 
+      success: true, 
+      count: blogs.length,
+      blogs 
+    });
+
+  } catch (error) {
+    console.log("Error in search blog controller", error);
+    return res.status(500).json({ 
+      success: false, 
+      message: "Internal server error" 
+    });
   }
 };

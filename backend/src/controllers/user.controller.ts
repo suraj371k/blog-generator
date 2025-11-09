@@ -84,22 +84,29 @@ export const loginUser = async (req: Request, res: Response) => {
 
 export const logoutUser = async (req: Request, res: Response) => {
   try {
+    // Clear the cookie with the same settings as when it was set
     res.clearCookie("token", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
+      sameSite: "strict",
+      path: "/",  // Ensure path matches the one used when setting cookie
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Logged out successfully",
     });
   } catch (error) {
     console.log("error in logout controller", error);
     return res
       .status(500)
-      .json({ success: true, message: "Internal server error" });
+      .json({ success: false, message: "Internal server error" }); // Fixed: changed success to false for error case
   }
 };
 
 export const getProfile = async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.id; 
+    const userId = (req as any).user.id;
 
     const user = await User.findById(userId).select("-password"); // exclude password
 

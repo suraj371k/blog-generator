@@ -44,6 +44,8 @@ export const useUserStore = create<UserState>((set) => ({
     } catch (error: any) {
       console.log("Error in login store", error);
       set({ error: error, loading: false });
+    } finally {
+      set({loading: false})
     }
   },
 

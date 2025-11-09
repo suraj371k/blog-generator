@@ -60,13 +60,11 @@ export const loginUser = async (req: Request, res: Response) => {
 
     // Set the cookie. For cross-site cookies (frontend and backend on different origins)
     // SameSite must be 'none' and secure must be true. In development we use 'lax'.
-    const isProd = process.env.NODE_ENV === "production";
     res.cookie("token", token, {
       httpOnly: true,
-      secure: isProd, // secure cookies only over HTTPS
-      sameSite: isProd ? "none" : "lax",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      path: "/",
     });
 
     return res.status(200).json({

@@ -15,18 +15,10 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-// Allow origins to be configured with FRONTEND_URL (comma-separated) in env
-const frontendEnv = process.env.FRONTEND_URL || "http://localhost:3000";
-const origins = frontendEnv.split(",").map((u) => u.trim());
+// app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 
 app.use(
-  cors({ origin: (origin, cb) => {
-    // allow requests with no origin like mobile apps or curl
-    if (!origin) return cb(null, true);
-    if (origins.indexOf(origin) !== -1) return cb(null, true);
-    return cb(new Error('CORS: Origin not allowed'), false);
-  }, credentials: true })
+  cors({ origin: "https://blog-generator-jet.vercel.app", credentials: true })
 );
 
 app.use(cookieParser());

@@ -37,8 +37,6 @@ export const loginUser = async (req: Request, res: Response) => {
 
     const user = await User.findOne({ email });
 
-    console.log("Fetched user:", user);
-
     if (!user) {
       return res
         .status(404)

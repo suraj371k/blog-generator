@@ -1,16 +1,55 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import User from "../models/user.model";
 
 export const authenticateMiddleware = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const token = req.cookies.token;
-  if (!token) {
-    return res.status(401).json({ message: "Unauthorized" });
+  try {
+    // 1️⃣ Get token from cookies
+    const token = req.cookies?.token;
+    if (!token) {
+      return res.status(401).json({ success: false, message: "Unauthorized: No token provided" });
+    }
+
+    // 2️⃣ Verify token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { id: string };
+    if (!decoded?.id) {
+      return res.status(401).json({ success: false, message: "Invalid token" });
+    }
+
+    // 3️⃣ Find user by ID
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    // 4️⃣ Reset monthly usage if 30 days passed
+    const now = new Date();
+    const lastReset = new Date(user.apiUsage.lastReset);
+
+    // ❌ You had a wrong divisor — `60 * 60 * 60 * 24` is incorrect
+    // ✅ Correct: milliseconds in a day = 1000 * 60 * 60 * 24
+    const daysSinceReset =
+      (now.getTime() - lastReset.getTime()) / (1000 * 60 * 60 * 24);
+
+    if (daysSinceReset >= 30) {
+      user.apiUsage.blogsGenerated = 0;
+      user.apiUsage.wordsGenerated = 0;
+      user.apiUsage.lastReset = now;
+      await user.save();
+    }
+
+    // 5️⃣ Attach user to request for later use
+    (req as any).user = user;
+
+    // 6️⃣ Call next middleware once
+    next();
+
+  } catch (error) {
+    console.error("Auth Middleware Error:", error);
+    return res.status(401).json({ success: false, message: "Invalid or expired token" });
   }
-  const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
-  (req as any).user = decoded;
-  next();
 };

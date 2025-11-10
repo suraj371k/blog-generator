@@ -101,7 +101,7 @@ const Login = () => {
             )}
           </div>
 
-          <Button className="w-full h-12 text-lg font-semibold text-white bg-linear-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 shadow-md hover:shadow-lg transition-all">
+          <Button disabled={loading} className="w-full h-12 text-lg font-semibold text-white bg-linear-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 shadow-md hover:shadow-lg transition-all">
             {loading ? "Login In..." : "Log In"}
           </Button>
 

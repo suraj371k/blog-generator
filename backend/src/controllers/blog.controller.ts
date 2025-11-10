@@ -7,32 +7,26 @@ import GenerationHistory from "../models/history.model";
 
 export const generateBlog = async (req: Request, res: Response) => {
   try {
-    // get logged in user
-    const userId = (req as any).user.id;
-
-    // Step 1: Check if user is authenticated
-    if (!userId) {
+    //  Step 1: Get authenticated user
+    const user = (req as any).user;
+    if (!user) {
       return res.status(401).json({
         success: false,
-        message: "Unauthorized: User ID not found",
+        message: "Unauthorized: User not found",
       });
     }
 
-    //  Step 2: Validate blog data (without userId)
+    console.log(user)
+
+    const userId = user._id || user.id;
+
+    // Step 2: Validate blog data
     const parsedData = await blogSchema
       .omit({ userId: true })
       .parseAsync(req.body);
-
     const { title, topic, tone, tags, metaDescription } = parsedData;
 
-    //  Step 3: Initialize Gemini model
-    const model = new ChatGoogleGenerativeAI({
-      model: "gemini-2.5-pro",
-      temperature: 0.7,
-      apiKey: process.env.GEMINI_API_KEY,
-    });
-
-    //  Step 4: Create the prompt
+    //  Step 3: Generate prompt
     const template = `
       You are an expert SEO blog writer.
       Write a detailed and SEO-optimized blog post based on the following details.
@@ -47,7 +41,7 @@ export const generateBlog = async (req: Request, res: Response) => {
       - Include headings, bullet points, and examples if relevant.
       - Optimize naturally for search engines (SEO).
       - Keep it engaging, human-like, and easy to read.
-      - If user ask for any technical blog like jwt authentication or something like that give code examples and explain
+      - If user asks for any technical topic like JWT authentication, include code examples.
 
       Output only the final blog content in Markdown format.
     `;
@@ -64,23 +58,29 @@ export const generateBlog = async (req: Request, res: Response) => {
       content: undefined,
     });
 
-    // Step 5: Generate blog using Gemini
+    //  Step 4: Generate with Gemini
+    const model = new ChatGoogleGenerativeAI({
+      model: "gemini-2.5-pro",
+      temperature: 0.7,
+      apiKey: process.env.GEMINI_API_KEY,
+    });
+
+    const startTime = Date.now();
     const response = await model.invoke(formattedPrompt);
+    const endTime = Date.now();
 
     const generatedContent =
       typeof response.content === "string"
         ? response.content
-        : response.content?.[0]?.text ??
-          response.content?.[0] ??
-          JSON.stringify(response.content);
+        : response.content?.[0]?.text ?? JSON.stringify(response.content);
 
-    //  Step 6: Compute word count and reading time
+    //  Step 5: Word count & reading time
     const contentStr =
       typeof generatedContent === "string" ? generatedContent : "";
     const wordCount = contentStr.split(/\s+/).filter(Boolean).length;
-    const readingTime = Math.ceil(wordCount / 200); // average reading speed
+    const readingTime = Math.ceil(wordCount / 200);
 
-    //  Step 7: Create blog document in MongoDB
+    //  Step 6: Save Blog
     const newBlog = await Blog.create({
       userId,
       title,
@@ -92,16 +92,10 @@ export const generateBlog = async (req: Request, res: Response) => {
       metaDescription,
       tags,
       seoScore: parsedData.seoScore ?? Math.floor(Math.random() * 20) + 80,
-      exportFormats: {
-        markdown: generatedContent,
-      },
+      exportFormats: { markdown: generatedContent },
     });
 
-    const startTime = Date.now();
-
-    const endTime = Date.now();
-
-    // log generation history
+    //  Step 7: Log generation history
     await GenerationHistory.create({
       userId,
       blogId: newBlog._id,
@@ -111,14 +105,23 @@ export const generateBlog = async (req: Request, res: Response) => {
       duration: (endTime - startTime) / 1000,
     });
 
-    //  Step 8: Respond with success
+    //  Step 8: Update user's API usage
+    user.apiUsage.blogsGenerated += 1;
+    user.apiUsage.wordsGenerated += wordCount;
+    await user.save();
+
+    //  Step 9: Respond
     return res.status(201).json({
       success: true,
       message: "Blog generated successfully",
       blog: newBlog,
+      usage: {
+        blogsGenerated: user.apiUsage.blogsGenerated,
+        wordsGenerated: user.apiUsage.wordsGenerated,
+      },
     });
   } catch (error: any) {
-    console.error(" Error generating blog:", error);
+    console.error("❌ Error generating blog:", error);
 
     if (error.name === "ZodError") {
       return res.status(400).json({
@@ -153,7 +156,7 @@ export const getBlogs = async (req: Request, res: Response) => {
 
     // total word count (sum of all blog.wordCount)
     const totalWords = rawBlogs.reduce((sum, blog) => {
-      const words = blog.wordCount || 0; 
+      const words = blog.wordCount || 0;
       return sum + words;
     }, 0);
 

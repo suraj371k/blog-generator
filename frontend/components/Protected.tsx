@@ -12,6 +12,10 @@ export default function ProtectedRoute({
   const router = useRouter();
   const { user, loading } = useUserStore();
 
+  if(loading){
+    <p>Loding...</p>
+  }
+
   useEffect(() => {
     if (!loading && !user) {
       router.push("/login");

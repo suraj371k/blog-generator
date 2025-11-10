@@ -88,9 +88,6 @@ const userSchema = new Schema<IUser>(
 userSchema.index({ email: 1 });
 userSchema.index({ plan: 1 });
 
-// Methods (can be added here)
-// userSchema.methods.comparePassword = async function(password: string) { ... }
-
 const User = mongoose.model<IUser>('User', userSchema);
 
 export default User;

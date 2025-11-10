@@ -6,7 +6,7 @@ import cookieParser from "cookie-parser";
 
 //routes imports
 import blogRoutes from "./routes/blog.routes.js";
-import historyRoutes from "./routes/history.routes.js";
+import paymentRoutes from "./routes/payment.routes.js";
 import userRoutes from "./routes/user.routes.js";
 
 // Load environment variables
@@ -37,7 +37,7 @@ app.get("/", (req: Request, res: Response) => {
 
 // API Routes
 app.use("/api/blog", blogRoutes);
-app.use("/api/history", historyRoutes);
+app.use("/api/payment", paymentRoutes);
 app.use("/api/user", userRoutes);
 
 // Start server
@@ -45,4 +45,3 @@ app.listen(PORT, () => {
   console.log(`✅ Server is running on http://localhost:${PORT}`);
 });
 
-// docker compose -f docker-compose.yml up

@@ -1,42 +1,45 @@
 "use client";
 import React, { useState } from "react";
-import { 
-  Check, 
-  Sparkles, 
-  Zap, 
-  Crown,
-  ArrowRight
-} from "lucide-react";
+import { Check, Sparkles, Zap, Crown, ArrowRight } from "lucide-react";
+import { Elements } from "@stripe/react-stripe-js";
+import { usePaymentStore } from "@/store/paymentStore";
 
 const Pricing = () => {
   const [isAnnual, setIsAnnual] = useState(false);
 
+  const { createCheckoutSession, loading, error } = usePaymentStore();
+
+  const handleUpgrade = async (plan: "pro" | "enterprise") => {
+    await createCheckoutSession(plan);
+  };
+
   const plans = [
     {
-      name: "Free",
-      description: "Perfect for trying out our platform",
-      price: 0,
+      name: "Pro",
+      description: "Perfect for single person",
+      price: 5,
       icon: Sparkles,
       color: "from-slate-500 to-slate-600",
       bgColor: "bg-slate-50 dark:bg-slate-800/50",
       borderColor: "border-slate-200 dark:border-slate-700",
       features: [
-        "3 blogs per month",
+        "5 blogs per month",
         "Basic AI models",
         "Standard support",
         "Basic templates",
-        "Email delivery"
+        "Email delivery",
       ],
-      cta: "Get Started",
-      popular: false
+      cta: "Buy Now",
+      popular: true,
     },
     {
-      name: "Pro",
+      name: "Enterprise",
       description: "For serious content creators",
-      price: isAnnual ? 8 : 10,
+      price: 10,
       icon: Zap,
       color: "from-violet-500 to-purple-600",
-      bgColor: "bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-500/10 dark:to-purple-500/10",
+      bgColor:
+        "bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-500/10 dark:to-purple-500/10",
       borderColor: "border-violet-200 dark:border-violet-700",
       features: [
         "Unlimited blog posts",
@@ -45,34 +48,38 @@ const Pricing = () => {
         "Priority support",
         "Custom templates",
         "Analytics dashboard",
-        "API access"
+        "API access",
       ],
-      cta: "Start Free Trial",
-      popular: true
-    }
+      cta: "Buy Now",
+      popular: false,
+    },
   ];
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 py-16 px-4">
       <div className="max-w-6xl mx-auto">
-        
         {/* Header */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 bg-violet-100 dark:bg-violet-500/10 px-4 py-2 rounded-full mb-6">
             <Crown className="w-4 h-4 text-violet-600 dark:text-violet-400" />
-            <span className="text-sm font-medium text-violet-600 dark:text-violet-400">Simple, Transparent Pricing</span>
+            <span className="text-sm font-medium text-violet-600 dark:text-violet-400">
+              Simple, Transparent Pricing
+            </span>
           </div>
-          
+
           <h1 className="text-5xl lg:text-6xl font-bold mb-4">
-            Choose Your <span className="bg-linear-to-r from-violet-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">Perfect Plan</span>
+            Choose Your{" "}
+            <span className="bg-linear-to-r from-violet-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+              Perfect Plan
+            </span>
           </h1>
-          
+
           <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto mb-8">
             Start free and scale as you grow. No hidden fees, cancel anytime.
           </p>
 
           {/* Billing Toggle */}
-          <div className="inline-flex items-center gap-4 bg-white dark:bg-slate-800 p-1.5 rounded-full border border-slate-200 dark:border-slate-700 shadow-sm">
+          {/* <div className="inline-flex items-center gap-4 bg-white dark:bg-slate-800 p-1.5 rounded-full border border-slate-200 dark:border-slate-700 shadow-sm">
             <button
               onClick={() => setIsAnnual(false)}
               className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${
@@ -96,7 +103,7 @@ const Pricing = () => {
                 Save 20%
               </span>
             </button>
-          </div>
+          </div> */}
         </div>
 
         {/* Pricing Cards */}
@@ -105,8 +112,8 @@ const Pricing = () => {
             <div
               key={index}
               className={`relative rounded-3xl p-8 border-2 transition-all duration-500 hover:scale-105 ${
-                plan.popular 
-                  ? "shadow-2xl shadow-violet-500/20 dark:shadow-violet-500/10" 
+                plan.popular
+                  ? "shadow-2xl shadow-violet-500/20 dark:shadow-violet-500/10"
                   : "shadow-lg"
               } ${plan.bgColor} ${plan.borderColor}`}
             >
@@ -121,7 +128,9 @@ const Pricing = () => {
               )}
 
               {/* Icon */}
-              <div className={`w-16 h-16 rounded-2xl bg-linear-to-br ${plan.color} flex items-center justify-center mb-6 shadow-lg`}>
+              <div
+                className={`w-16 h-16 rounded-2xl bg-linear-to-br ${plan.color} flex items-center justify-center mb-6 shadow-lg`}
+              >
                 <plan.icon className="w-8 h-8 text-white" />
               </div>
 
@@ -145,7 +154,7 @@ const Pricing = () => {
                 </div>
                 {plan.price > 0 && isAnnual && (
                   <p className="text-sm text-emerald-600 dark:text-emerald-400 mt-2 font-medium">
-                    Save ${(10 * 12 - 8 * 12)} per year
+                    Save ${10 * 12 - 8 * 12} per year
                   </p>
                 )}
               </div>
@@ -166,7 +175,11 @@ const Pricing = () => {
 
               {/* CTA Button */}
               <button
-                className={`w-full py-4 rounded-xl font-semibold text-lg transition-all duration-300 flex items-center justify-center gap-2 group ${
+                onClick={() =>
+                  handleUpgrade(plan.name.toLowerCase() as "pro" | "enterprise")
+                }
+                disabled={loading}
+                className={`w-full cursor-pointer py-4 rounded-xl font-semibold text-lg transition-all duration-300 flex items-center justify-center gap-2 group ${
                   plan.popular
                     ? "bg-linear-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl"
                     : "bg-white dark:bg-slate-800 text-slate-900 dark:text-white border-2 border-slate-200 dark:border-slate-700 hover:border-violet-500 dark:hover:border-violet-500 hover:text-violet-600 dark:hover:text-violet-400"
@@ -181,9 +194,9 @@ const Pricing = () => {
 
         {/* FAQ or Trust Section */}
         <div className="mt-16 text-center">
-          <p className="text-slate-600 dark:text-slate-400 mb-4">
+          {/* <p className="text-slate-600 dark:text-slate-400 mb-4">
             All plans include 14-day free trial • No credit card required • Cancel anytime
-          </p>
+          </p> */}
           <div className="flex items-center justify-center gap-8 text-sm text-slate-500 dark:text-slate-500">
             <div className="flex items-center gap-2">
               <Check className="w-4 h-4 text-emerald-500" />
@@ -199,7 +212,6 @@ const Pricing = () => {
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );

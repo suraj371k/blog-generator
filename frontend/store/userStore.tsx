@@ -43,9 +43,12 @@ export const useUserStore = create<UserState>((set) => ({
       set({ user: res.data.user, loading: false });
     } catch (error: any) {
       console.log("Error in login store", error);
-      set({ error: error, loading: false });
+      const message =
+        error.response?.data?.message || error.message || "Invalid credentials";
+      set({ error: message, loading: false });
+      throw new Error(message);
     } finally {
-      set({loading: false})
+      set({ loading: false });
     }
   },
 
@@ -64,24 +67,24 @@ export const useUserStore = create<UserState>((set) => ({
     try {
       set({ loading: true, error: null });
       await api.post("/api/user/logout");
-      
+
       // Clear user data from store
       set({ user: null, loading: false });
-      
+
       // Clear any cached API state
-      if (api.defaults.headers.common['Authorization']) {
-        delete api.defaults.headers.common['Authorization'];
+      if (api.defaults.headers.common["Authorization"]) {
+        delete api.defaults.headers.common["Authorization"];
       }
 
       // Force a page reload to clear any cached state
-      window.location.href = '/';
+      window.location.href = "/";
     } catch (error: any) {
       console.log("Error in logout store", error);
       set({ error: error?.message || "Logout failed", loading: false });
-      
+
       // Even if the API call fails, clear the local state
       set({ user: null });
-      window.location.href = '/';
-    } 
+      window.location.href = "/";
+    }
   },
 }));

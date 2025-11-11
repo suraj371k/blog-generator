@@ -69,6 +69,7 @@ const Signup = () => {
                 type="text"
                 placeholder="john doe"
                 {...register("name")}
+                required
                 className="pl-10 h-12 text-base border-gray-300 focus:ring-2 focus:ring-purple-600 focus:border-purple-600 transition-all"
               />
             </div>
@@ -95,6 +96,7 @@ const Signup = () => {
                 type="email"
                 placeholder="john@gmail.com"
                 {...register("email")}
+                required
                 className="pl-10 h-12 text-base border-gray-300 focus:ring-2 focus:ring-purple-600 focus:border-purple-600 transition-all"
               />
             </div>
@@ -117,6 +119,7 @@ const Signup = () => {
               <Input
                 id="password"
                 type="password"
+                required
                 placeholder="Enter your password"
                 {...register("password")}
                 className="pl-10 h-12 text-base border-gray-300 focus:ring-2 focus:ring-purple-600 focus:border-purple-600 transition-all"

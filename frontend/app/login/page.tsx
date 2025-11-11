@@ -12,7 +12,6 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { loginSchema, loginUser } from "@/schema/user.schema";
 
-
 const Login = () => {
   const {
     register,
@@ -34,6 +33,7 @@ const Login = () => {
       toast.error("login failed");
     }
   };
+
   return (
     <section className="flex items-center justify-center min-h-screen bg-linear-to-br from-blue-50 via-purple-50 to-white px-4">
       <div className="w-full max-w-md bg-white shadow-lg rounded-2xl p-8 md:p-10 border border-gray-100">
@@ -67,6 +67,7 @@ const Login = () => {
                 type="email"
                 placeholder="john@gmail.com"
                 {...register("email")}
+                required
                 className="pl-10 h-12 text-base border-gray-300 focus:ring-2 focus:ring-purple-600 focus:border-purple-600 transition-all"
               />
             </div>
@@ -94,6 +95,7 @@ const Login = () => {
                 placeholder="Enter your password"
                 {...register("password")}
                 className="pl-10 h-12 text-base border-gray-300 focus:ring-2 focus:ring-purple-600 focus:border-purple-600 transition-all"
+                required
               />
             </div>
             {errors.password && (
@@ -101,7 +103,10 @@ const Login = () => {
             )}
           </div>
 
-          <Button disabled={loading} className="w-full h-12 text-lg font-semibold text-white bg-linear-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 shadow-md hover:shadow-lg transition-all">
+          <Button
+            disabled={loading}
+            className="w-full h-12 text-lg font-semibold text-white bg-linear-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 shadow-md hover:shadow-lg transition-all"
+          >
             {loading ? "Login In..." : "Log In"}
           </Button>
 

@@ -8,6 +8,7 @@ import backendUrl from "@/lib/backendUrl";
 export default function PaymentSuccess() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
+
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,7 +26,6 @@ export default function PaymentSuccess() {
       const response = await backendUrl.get("/api/payment/verify-session", {
         params: { session_id: sessionId },
       });
-
       setIsLoading(false);
     } catch (error: any) {
       console.error("Payment verification error:", error);

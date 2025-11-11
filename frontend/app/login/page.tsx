@@ -11,6 +11,7 @@ import { useUserStore } from "@/store/userStore";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { loginSchema, loginUser } from "@/schema/user.schema";
+import { Suspense } from "react";
 
 const Login = () => {
   const {
@@ -35,6 +36,7 @@ const Login = () => {
   };
 
   return (
+    <Suspense fallback={<div>Loading...</div>}>
     <section className="flex items-center justify-center min-h-screen bg-linear-to-br from-blue-50 via-purple-50 to-white px-4">
       <div className="w-full max-w-md bg-white shadow-lg rounded-2xl p-8 md:p-10 border border-gray-100">
         {/* Heading */}
@@ -122,6 +124,7 @@ const Login = () => {
         </form>
       </div>
     </section>
+    </Suspense>
   );
 };
 

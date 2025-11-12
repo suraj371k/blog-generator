@@ -6,7 +6,6 @@ import cookieParser from "cookie-parser";
 
 //routes imports
 import blogRoutes from "./routes/blog.routes.js";
-import paymentRoutes from "./routes/payment.routes.js";
 import userRoutes from "./routes/user.routes.js";
 
 // Load environment variables
@@ -37,7 +36,6 @@ app.get("/", (req: Request, res: Response) => {
 
 // API Routes
 app.use("/api/blog", blogRoutes);
-app.use("/api/payment", paymentRoutes);
 app.use("/api/user", userRoutes);
 
 // Start server

@@ -1,18 +1,18 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from "mongoose";
 
 // TypeScript Interface
 export interface IUser extends Document {
   email: string;
   password: string;
   name: string;
-  plan: 'free' | 'pro' | 'enterprise';
+  plan: "free" | "pro" | "enterprise";
   apiUsage: {
     blogsGenerated: number;
     wordsGenerated: number;
     lastReset: Date;
   };
   preferences: {
-    defaultTone: 'professional' | 'casual' | 'technical' | 'creative';
+    defaultTone: "professional" | "casual" | "technical" | "creative";
     defaultLength: number;
     darkMode: boolean;
   };
@@ -25,27 +25,27 @@ const userSchema = new Schema<IUser>(
   {
     email: {
       type: String,
-      required: [true, 'Email is required'],
+      required: [true, "Email is required"],
       unique: true,
       lowercase: true,
       trim: true,
-      match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email'],
+      match: [/^\S+@\S+\.\S+$/, "Please provide a valid email"],
     },
     password: {
       type: String,
-      required: [true, 'Password is required'],
-      minlength: [6, 'Password must be at least 6 characters'],
+      required: [true, "Password is required"],
+      minlength: [6, "Password must be at least 6 characters"],
     },
     name: {
       type: String,
-      required: [true, 'Name is required'],
+      required: [true, "Name is required"],
       trim: true,
-      maxlength: [50, 'Name cannot exceed 50 characters'],
+      maxlength: [50, "Name cannot exceed 50 characters"],
     },
     plan: {
       type: String,
-      enum: ['free', 'pro', 'enterprise'],
-      default: 'free',
+      enum: ["free", "pro", "enterprise"],
+      default: "free",
     },
     apiUsage: {
       blogsGenerated: {
@@ -64,8 +64,8 @@ const userSchema = new Schema<IUser>(
     preferences: {
       defaultTone: {
         type: String,
-        enum: ['professional', 'casual', 'technical', 'creative'],
-        default: 'professional',
+        enum: ["professional", "casual", "technical", "creative"],
+        default: "professional",
       },
       defaultLength: {
         type: Number,
@@ -88,6 +88,6 @@ const userSchema = new Schema<IUser>(
 userSchema.index({ email: 1 });
 userSchema.index({ plan: 1 });
 
-const User = mongoose.model<IUser>('User', userSchema);
+const User = mongoose.model<IUser>("User", userSchema);
 
 export default User;

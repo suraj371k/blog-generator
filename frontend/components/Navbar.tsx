@@ -14,7 +14,6 @@ const Navbar = () => {
   const items = [
     { id: 1, name: "Dashboard", path: "/dashboard" },
     { id: 2, name: "About", path: "/about" },
-    { id: 3, name: "Pricing", path: "/pricing" },
     { id: 4, name: "History", path: "/history" },
   ];
 

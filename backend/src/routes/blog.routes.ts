@@ -8,15 +8,12 @@ import {
   searchBlog,
   updateBlogs,
 } from "../controllers/blog.controller";
-import { usageLimiter } from "../middleware/usageLimiter";
 
 const router = Router();
 
 router.post(
   "/generate",
   authenticateMiddleware,
-  usageLimiter("blog"),
-  usageLimiter("words"),
   generateBlog
 );
 

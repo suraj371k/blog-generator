@@ -236,7 +236,7 @@ export const useBlogStore = create<BlogState>((set) => ({
   deleteBlog: async (id) => {
     try {
       set({ loading: true, error: null });
-      await api.delete(`/api/blog${id}`);
+      await api.delete(`/api/blog/${id}`);
       set((state) => ({
         blogs: state.blogs.filter((blog) => blog.id !== id),
         blog: state.blog?.id === id ? null : state.blog,

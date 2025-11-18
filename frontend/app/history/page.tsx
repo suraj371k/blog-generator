@@ -1,6 +1,4 @@
 "use client";
-
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,38 +9,23 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Search,
-  Calendar,
-  Clock,
-  FileText,
-  ArrowUpDown,
-  Filter,
-  X,
-  Eye,
-  Edit3,
-  Sparkles,
-  TrendingUp,
-  Trash,
-  Trash2,
-} from "lucide-react";
-import React, { useEffect, useState } from "react";
+import { Calendar, FileText, Eye, Sparkles, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useBlogStore } from "@/store/blogStore";
 import { useRouter } from "next/navigation";
 import ProtectedRoute from "@/components/Protected";
+import toast from "react-hot-toast";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+  PaginationLink,
+} from "@/components/ui/pagination";
 
 const History = () => {
-  const {
-    blogs,
-    getBlogs,
-    loading,
-    error,
-    searchBlog,
-    clearSearch,
-    deleteBlog,
-  } = useBlogStore();
-
-  const [query, setQuery] = useState("");
+  const { blogs, getBlogs, loading, deleteBlog } = useBlogStore();
 
   const router = useRouter();
 
@@ -50,25 +33,9 @@ const History = () => {
     getBlogs();
   }, []);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (query.trim()) {
-        searchBlog(query);
-      } else {
-        clearSearch();
-      }
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [query, searchBlog, clearSearch]);
-
-  const handleClear = () => {
-    setQuery("");
-    clearSearch();
-  };
-
   const handleDelete = async (id: string) => {
     await deleteBlog(id);
+    toast.success("blog deleted successfully!");
   };
 
   const getSEOColor = (score: number) => {
@@ -77,6 +44,23 @@ const History = () => {
     if (score >= 80) return "bg-blue-500/10 text-blue-700 border-blue-500/20";
     return "bg-amber-500/10 text-amber-700 border-amber-500/20";
   };
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+
+  const paginatedBlogs = blogs.slice(startIndex, endIndex);
+
+  const totalPages = Math.ceil(blogs.length / itemsPerPage);
+
+  if (loading)
+    return (
+      <div className="flex items-center justify-center h-full py-10">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600"></div>
+      </div>
+    );
 
   return (
     <ProtectedRoute>
@@ -99,51 +83,9 @@ const History = () => {
             </div>
           </div>
 
-          {/* Search and Filter Section */}
-          {/* <div className="flex flex-col sm:flex-row gap-4 mb-8">
-          <div className="flex-1 relative group">
-            <Search
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-violet-500 transition-colors"
-              size={20}
-            />
-            <Input
-              className="pl-12 pr-4 py-6 h-auto bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-xl shadow-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all"
-              type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by title, topic, or tags..."
-            />
-            {query && (
-              <button
-                onClick={handleClear}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
-              >
-                <X size={18} />
-              </button>
-            )}
-          </div>
-
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              className="flex items-center gap-2 h-auto py-3 px-5 rounded-xl border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
-            >
-              <Filter size={16} />
-              <span className="hidden sm:inline">Filter</span>
-            </Button>
-            <Button
-              variant="outline"
-              className="flex items-center gap-2 h-auto py-3 px-5 rounded-xl border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
-            >
-              <ArrowUpDown size={16} />
-              <span className="hidden sm:inline">Sort</span>
-            </Button>
-          </div>
-        </div> */}
-
           {/* Blog History Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {blogs.map((blog) => (
+          <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
+            {paginatedBlogs.map((blog) => (
               <Card
                 key={blog.id}
                 className="group hover:shadow-2xl hover:shadow-slate-200/50 dark:hover:shadow-slate-900/50 transition-all duration-500 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:scale-[1.02] overflow-hidden rounded-2xl"
@@ -205,12 +147,6 @@ const History = () => {
                         {blog.wordCount.toLocaleString()}
                       </span>
                     </div>
-                    {/* <div className="flex items-center gap-2">
-                    <div className="p-1.5 bg-slate-100 dark:bg-slate-700 rounded-lg">
-                      <Clock size={14} />
-                    </div>
-                    <span className="font-medium">{blog.readingTime} min</span>
-                  </div> */}
                   </div>
                 </CardContent>
 
@@ -231,7 +167,7 @@ const History = () => {
                         onClick={() => router.push(`/history/${blog.id}`)}
                         variant="ghost"
                         size="sm"
-                        className="h-9 px-4 text-xs font-medium rounded-lg hover:bg-violet-100 dark:hover:bg-violet-500/10 hover:text-violet-600 dark:hover:text-violet-400 transition-all"
+                        className="h-9 cursor-pointer px-4 text-xs font-medium rounded-lg hover:bg-violet-100 dark:hover:bg-violet-500/10 hover:text-violet-600 dark:hover:text-violet-400 transition-all"
                       >
                         <Eye size={14} className="mr-1.5" />
                         View
@@ -240,7 +176,7 @@ const History = () => {
                         onClick={() => handleDelete(blog.id)}
                         variant="ghost"
                         size="sm"
-                        className="h-9 px-4 text-xs font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
+                        className="h-9 px-4 cursor-pointer text-xs font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
                       >
                         <Trash2 size={14} className="text-red-600" />
                       </Button>
@@ -250,6 +186,34 @@ const History = () => {
               </Card>
             ))}
           </div>
+          {/* Pagination */}
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                />
+              </PaginationItem>
+
+              {Array.from({ length: totalPages }, (_, index) => (
+                <PaginationItem key={index}>
+                  <PaginationLink
+                    isActive={currentPage === index + 1}
+                    onClick={() => setCurrentPage(index + 1)}
+                  >
+                    {index + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(p + 1, totalPages))
+                  }
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
 
           {/* Empty State */}
           {blogs.length === 0 && (
@@ -273,18 +237,6 @@ const History = () => {
                   Create Your First Blog
                 </Button>
               </div>
-            </div>
-          )}
-
-          {/* Load More Button */}
-          {blogs.length > 0 && blogs.length >= 10 && (
-            <div className="flex justify-center mt-12">
-              <Button
-                variant="outline"
-                className="px-8 py-6 h-auto rounded-xl border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all font-medium"
-              >
-                Load More Posts
-              </Button>
             </div>
           )}
         </div>

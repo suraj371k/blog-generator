@@ -1,34 +1,34 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useBlogStore } from "@/store/blogStore";
 import { useUserStore } from "@/store/userStore";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-export default function ProtectedRoute({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { user: isAuthenticated } = useUserStore()
   const router = useRouter();
-  const { user, loading } = useUserStore();
+  const [hydrated, setHydrated] = useState(false);
 
-  if(loading){
-    <p>Loding...</p>
-  }
+  // Ensure Zustand is hydrated first
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (hydrated && !isAuthenticated) {
       router.push("/login");
     }
-  }, [user, loading, router]);
+  }, [hydrated, isAuthenticated, router]);
 
-  if (loading) {
-    return <p>Loading...</p>;
+  if (!hydrated) {
+    // You can show a loader here
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-300 border-t-violet-600"></div>
+      </div>
+    );
   }
 
-  if (!user) {
-    return null;
-  }
-
-  return <>{children}</>;
+  return <>{isAuthenticated ? children : null}</>;
 }
